@@ -4,9 +4,7 @@ require 'fileutils'
 require 'hashie/mash'
 require 'httparty'
 require 'json'
-require 'nokogiri'
 require 'open-uri'
-require 'pandoc-ruby'
 
 
 Dotenv.load
@@ -156,5 +154,5 @@ def write_text(page_output, path, dump_name)
       end
     end
   end
-  File.open("#{path}/#{dump_name}/#{page_output["name"]}.html", 'wb') {|file| file.write(write_array)}
+  File.open("#{path}/#{dump_name}/#{page_output["name"]}.docx", 'wb') {|file| file.write(write_array)}
 end
