@@ -4,7 +4,10 @@ require 'fileutils'
 require 'hashie/mash'
 require 'httparty'
 require 'json'
+require 'nokogiri'
 require 'open-uri'
+require 'pandoc-ruby'
+
 
 Dotenv.load
 
@@ -33,11 +36,15 @@ class G5Api
 
   def project_grab(id)
     mash = Hashie::Mash.new(@api.get_pages_by_project(id)).drop(1).first[1]
-    @output = sorted_hash(mash)
+    @project_output = sorted_hash(mash)
   end
 
   def file_grab(id)
-    @output = Hashie::Mash.new(@api.get_files_by_page(id)).drop(1).first[1]
+    @file_output = Hashie::Mash.new(@api.get_files_by_page(id)).drop(1).first[1]
+  end
+
+  def page_grab(id)
+    @page_output = @api.get_page(id).drop(1).first[1]
   end
 
 end
@@ -118,7 +125,36 @@ def download_project_photos(sorted_hash, path, dump_name)
   end
 end
 
+def download_project_content(sorted_hash, path, dump_name)
+  stamp = Time.now
+  FileUtils::mkdir_p "#{path}/#{dump_name}/"
+  sorted_hash.each do |key, value|
+    if key.nil?
+      value.each do |write|
+        write_text(write, path, dump_name)
+      end
+    else
+      key.each do |write|
+        write_text(write, path, dump_name)
+      end
+      value.each do |write|
+        write_text(write, path, dump_name)
+      end
+    end
+  end
+end
 
 
-
-
+def write_text(page_output, path, dump_name)
+  write_array =[]  
+  decoded_config = JSON.parse(Base64.decode64(page_output["config"]))
+  decoded_config.each do |page_text|
+    output = page_text["elements"]
+    output.each do |field|
+      if field["value"] != nil
+        write_array.push(field["label"], field["value"])
+      end
+    end
+  end
+  File.open("#{path}/#{dump_name}/#{page_output["name"]}.html", 'wb') {|file| file.write(write_array)}
+end

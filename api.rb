@@ -10,7 +10,7 @@ say "Hello there!"
 choose do |menu|
   menu.prompt = "What would you like to download?  "
 
-  menu.choice("Download Files by Page") { 
+  menu.choice("Download Files per Page") { 
 
     dump_name = ask "Your files will be downloaded to #{path}, what would you like to name this folder?: "
 
@@ -25,7 +25,7 @@ choose do |menu|
 
   }
   
-  menu.choice("Download Files by Full Project") { 
+  menu.choice("Download Files per Full Project") { 
     
     dump_name = ask "Your files will be downloaded to #{path}, what would you like to name this folder?: "
 
@@ -36,6 +36,22 @@ choose do |menu|
     to_be_downloaded = G5Api.new.project_grab(project_id)
 
     download_project_photos(to_be_downloaded, path, dump_name)
+
+    say "If you have any questions, please ask Stuart"
+
+  }
+
+  menu.choice("Download Content per Full Project") { 
+    
+    dump_name = ask "Your content will be downloaded to #{path}, what would you like to name this folder?: "
+
+    project_id = ask "Please enter the project id you'd like to download: "
+
+    say "We will get right to downloading #{dump_name} for you. Please be patient."
+
+    to_be_downloaded = G5Api.new.project_grab(project_id)
+
+    download_project_content(to_be_downloaded, path, dump_name)
 
     say "If you have any questions, please ask Stuart"
 
